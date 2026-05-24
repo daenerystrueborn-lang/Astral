@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://YOUR_OPTILINK_URL:3001/:path*"
+      "destination": "http://144.217.64.5:5064/:path*"
     },
     {
       "source": "/(.*)",
