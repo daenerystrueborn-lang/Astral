@@ -1,6 +1,6 @@
 import { X, MessageCircle } from "lucide-react";
 import { BOT_WA } from "@/lib/api";
-import bgImg from "@assets/323344448270705484_1781751469802.jpg";
+import bgImg from "@assets/hero_1781751469798.jpg";
 
 interface Props { onClose: () => void; }
 
