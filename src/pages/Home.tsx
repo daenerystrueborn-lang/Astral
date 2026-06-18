@@ -90,7 +90,6 @@ export default function HomePage() {
   const [lockout, setLockout] = useState<number | null>(null);
   const [lockTimer, setLockTimer] = useState(0);
   const [showPw, setShowPw] = useState(false);
-  const cd = useCountdown(SEASON_END);
 
   useEffect(() => {
     if (lockout) {
@@ -263,7 +262,7 @@ export default function HomePage() {
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="container">
             <div className="signin-section" style={{ maxWidth: 560, margin: "0 auto" }}>
-              <div className="signin-section-bg" style={{ backgroundImage: `url(${signinBg})` }} />
+              <div className="signin-section-bg" style={{ backgroundImage: `url(${heroImg})` }} />
               <div className="signin-section-content">
                 <h2 style={{ fontSize: 22, letterSpacing: "0.08em", marginBottom: 6, textAlign: "center" }}>YOUR LEGEND AWAITS</h2>
                 <p style={{ color: "var(--text-grey)", fontSize: 13, marginBottom: 24, textAlign: "center" }}>
