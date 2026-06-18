@@ -31,6 +31,6 @@ export const WHATSAPP_GROUPS: { name: string; members: string; link: string }[] 
   _rawGroups
     ? JSON.parse(_rawGroups)
     : [
-        { name: "Astral of the Sun — Main", members: "248", link: "https://chat.whatsapp.com/group1" },
-        { name: "Astral of the Sun — Overflow", members: "117", link: "https://chat.whatsapp.com/group2" },
+        { name: "Astral of the Sun — Main", members: "1.1k", link: "https://chat.whatsapp.com/HlyfO2IR3TyHEnl4Wby0e1" },
+        { name: "Astral of the Sun — Overflow", members: "1.03k", link: "https://chat.whatsapp.com/KwYfA8cxD6N9q2d4mQfliT" },
       ];
