@@ -3,7 +3,6 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { apiPost } from "@/lib/api";
 import { User, Lock, ArrowLeft, Eye, EyeOff, MessageCircle } from "lucide-react";
-import RegistrationModal from "@/components/RegistrationModal";
 import signinBg from "@assets/126100858315462481_1781751469800.jpg";
 
 type Step = "login" | "forgot" | "code";
@@ -12,7 +11,6 @@ export default function LoginPage() {
   const { isLoggedIn, login } = useAuth();
   const [, navigate] = useLocation();
   const [step, setStep] = useState<Step>("login");
-  const [showReg, setShowReg] = useState(false);
   const [showPw, setShowPw] = useState(false);
 
   const [form, setForm] = useState({ username: "", password: "" });
@@ -125,9 +123,9 @@ export default function LoginPage() {
             <div className="divider" />
             <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
               <button className="btn btn-ghost btn-sm" onClick={() => { setStep("forgot"); setError(""); }}>Forgot password?</button>
-              <button className="btn btn-ghost btn-sm" onClick={() => setShowReg(true)}>
+              <button className="btn btn-ghost btn-sm" onClick={() => window.open(`https://wa.me/923375465038?text=${encodeURIComponent("!register")}`, "_blank")}>
                 <MessageCircle size={13} />
-                New to Astral?
+                New to Astral? Register via WhatsApp
               </button>
             </div>
           </>
@@ -183,7 +181,6 @@ export default function LoginPage() {
           </>
         )}
       </div>
-      {showReg && <RegistrationModal onClose={() => setShowReg(false)} />}
     </div>
   );
 }

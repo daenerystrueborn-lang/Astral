@@ -2,6 +2,11 @@ import { useState } from "react";
 import { Gem, Zap, Sun, Star, Shield, Sword, Trophy, Skull, Globe, Layers, Lock, Eye, Users } from "lucide-react";
 import eldenBg from "@assets/Elden_Ring_1781751469805.jpg";
 
+const BOT_NUMBER = "923375465038";
+function wa(msg: string) {
+  window.open(`https://wa.me/${BOT_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
 const TIER_NAMES = ["Wanderer","Street Walker","City Dweller","Marked One","Ember","City Guard","Blade Carrier","Vanguard","Heaven Seeker","Ascendant","Angel Touched","Radiant","Fallen Star","City of Angels","Seraph"];
 const FREE_R = ["500 ☀","1K ☀","2.5K ☀","5K ☀","10K ☀","15K ☀","25K ☀","40K ☀","60K ☀","80K ☀","100K ☀","150K ☀","200K ☀","250K ☀","500K ☀"];
 const PREM_R = ["5 💎","10 💎","15 💎","20 💎","25+Frag","30 💎","40 💎","50 💎","60+Blade","75 💎","100 💎","125+Bow","150 💎","175 💎","250+Title"];
@@ -94,7 +99,7 @@ export default function PremiumPage() {
               <h2 className="section-title">Season 3 Pass</h2>
               <p className="section-sub">150 💎 to unlock the premium track</p>
             </div>
-            <button className="btn btn-primary">Unlock · 150 💎</button>
+            <button className="btn btn-primary" onClick={() => wa("!buy season pass")}>Unlock · 150 💎</button>
           </div>
 
           <div className="card" style={{ padding: "20px 0" }}>
@@ -145,10 +150,13 @@ export default function PremiumPage() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {(tab === "naira" ? PREM_NAIRA : PREM_GEMS).map(p => (
-                  <div key={p.label} style={{ display: "flex", justifyContent: "space-between", background: "var(--bg-elevated)", borderRadius: 8, padding: "9px 12px" }}>
+                  <button key={p.label} onClick={() => wa(`!buy premium ${p.label} ${p.price}`)}
+                    style={{ display: "flex", justifyContent: "space-between", background: "var(--bg-elevated)", borderRadius: 8, padding: "9px 12px", border: "1px solid transparent", cursor: "pointer", width: "100%", transition: "border-color 0.15s" }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--gold)")}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = "transparent")}>
                     <span style={{ fontSize: 13, color: "var(--text-grey)" }}>{p.label}</span>
                     <span style={{ fontSize: 14, fontWeight: 700, color: "var(--gold)", fontFamily: "var(--font-display)" }}>{p.price}</span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -170,10 +178,13 @@ export default function PremiumPage() {
               </ul>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {PLUS_P.map(p => (
-                  <div key={p.label} style={{ display: "flex", justifyContent: "space-between", background: "var(--bg-elevated)", borderRadius: 8, padding: "9px 12px" }}>
+                  <button key={p.label} onClick={() => wa(`!buy premium+ ${p.label} ${p.price}`)}
+                    style={{ display: "flex", justifyContent: "space-between", background: "var(--bg-elevated)", borderRadius: 8, padding: "9px 12px", border: "1px solid transparent", cursor: "pointer", width: "100%", transition: "border-color 0.15s" }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--gold)")}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = "transparent")}>
                     <span style={{ fontSize: 13, color: "var(--text-grey)" }}>{p.label}</span>
                     <span style={{ fontSize: 14, fontWeight: 700, color: "var(--gold)", fontFamily: "var(--font-display)" }}>{p.price}</span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -201,7 +212,7 @@ export default function PremiumPage() {
                 <div style={{ fontFamily: "var(--font-num)", fontWeight: 700, fontSize: 20, color: "var(--gold)", marginBottom: 4 }}>{p.amount}</div>
                 <div style={{ fontSize: 11, color: "var(--text-grey)", marginBottom: 12 }}>Solars</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-white)", fontFamily: "var(--font-display)", marginBottom: 14 }}>{p.price}</div>
-                <button className="btn btn-outline btn-sm btn-full">Get</button>
+                <button className="btn btn-outline btn-sm btn-full" onClick={() => wa(`!buy solar ${p.name} ${p.price}`)}>Get</button>
               </div>
             ))}
           </div>
@@ -224,7 +235,7 @@ export default function PremiumPage() {
                 <div style={{ fontFamily: "var(--font-num)", fontWeight: 700, fontSize: 20, color: "#60a5fa", marginBottom: 4 }}>{p.amount}</div>
                 <div style={{ fontSize: 11, color: "var(--text-grey)", marginBottom: 12 }}>Gems</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-white)", fontFamily: "var(--font-display)", marginBottom: 14 }}>{p.price}</div>
-                <button className="btn btn-outline btn-sm btn-full">Get</button>
+                <button className="btn btn-outline btn-sm btn-full" onClick={() => wa(`!buy gems ${p.name} ${p.price}`)}>Get</button>
               </div>
             ))}
           </div>
