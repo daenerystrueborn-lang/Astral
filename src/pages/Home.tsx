@@ -131,20 +131,31 @@ export default function HomePage() {
             fontWeight: 700,
             letterSpacing: "0.06em",
             lineHeight: 0.95,
-            marginBottom: 28,
+            marginBottom: 10,
             animation: "fadeInUp 0.6s ease 0.2s both",
           }} className="text-gold-gradient">
             DEVOURED<br />HEAVEN
           </h1>
 
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", animation: "fadeInUp 0.6s ease 0.35s both" }}>
-            <button className="btn btn-primary btn-lg" onClick={() => setShowReg(true)}>
-              <MessageCircle size={16} />
+          <p style={{
+            color: "rgba(240,230,200,0.35)",
+            fontSize: 13,
+            fontStyle: "italic",
+            letterSpacing: "0.04em",
+            marginBottom: 28,
+            animation: "fadeInUp 0.6s ease 0.28s both",
+          }}>
+            Heaven fell. Something ate it. You are next.
+          </p>
+
+          <div style={{ display: "flex", gap: 10, flexWrap: "nowrap", animation: "fadeInUp 0.6s ease 0.35s both" }}>
+            <button className="btn btn-primary" onClick={() => setShowReg(true)}>
+              <MessageCircle size={14} />
               Join the Realm
             </button>
-            <Link href="/premium" className="btn btn-outline btn-lg">
+            <Link href="/premium" className="btn btn-outline">
               Season Pass
-              <ChevronRight size={15} />
+              <ChevronRight size={13} />
             </Link>
           </div>
         </div>
