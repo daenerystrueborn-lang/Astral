@@ -114,11 +114,15 @@ a { text-decoration: none; }
   height: var(--nav-h);
   display: flex;
   align-items: center;
-  padding: 0 18px;
+  padding: 0 14px;
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 @media (min-width: 640px) {
   .navbar { width: calc(100% - 40px); padding: 0 24px; }
+}
+@media (max-width: 639px) {
+  .navbar { height: 44px; top: 10px; }
+  .navbar-logo { font-size: 17px !important; }
 }
 
 .navbar-inner {
@@ -316,36 +320,28 @@ a { text-decoration: none; }
 /* ── MOBILE HERO OVERRIDES ───────────────────────────────────── */
 @media (max-width: 767px) {
   .hero-main-img {
-    object-position: 72% 8%;   /* push character right so face clears text */
+    object-position: center 15%;
   }
   .hero-gradient {
     background: linear-gradient(
       to top,
       rgba(3,3,3,1)    0%,
-      rgba(3,3,3,0.97) 35%,
-      rgba(3,3,3,0.75) 58%,
-      rgba(3,3,3,0.30) 78%,
-      rgba(3,3,3,0.08) 100%
+      rgba(3,3,3,0.97) 30%,
+      rgba(3,3,3,0.82) 52%,
+      rgba(3,3,3,0.25) 75%,
+      rgba(3,3,3,0.05) 100%
     );
   }
   .hero-content {
-    padding: 0 20px calc(90px + env(safe-area-inset-bottom)) !important;
+    align-items: center !important;
+    text-align: center !important;
+    padding: 0 24px calc(96px + env(safe-area-inset-bottom)) !important;
+    justify-content: flex-end !important;
   }
-  .countdown-row {
-    gap: 6px;
-    flex-wrap: nowrap;
-  }
-  .countdown-box {
-    padding: 8px 10px;
-    min-width: 0;
-    flex: 1;
-  }
-  .countdown-num {
-    font-size: 24px;
-  }
-  .countdown-label {
-    font-size: 8px;
-  }
+  .countdown-row  { gap: 6px; flex-wrap: nowrap; }
+  .countdown-box  { padding: 8px 10px; min-width: 0; flex: 1; }
+  .countdown-num  { font-size: 24px; }
+  .countdown-label { font-size: 8px; }
 }
 
 /* Desktop: dim left, keep right bright */
