@@ -7,8 +7,7 @@ import {
   MessageCircle, Sword, Castle, Users, Star,
   Globe, Layers, Zap, ChevronRight
 } from "lucide-react";
-import heroImg from "@assets/hero_1781751469798.jpg";
-import signinBg from "@assets/126100858315462481_1781751469800.jpg";
+import heroImg from "@assets/126100858315462481_1781751469800.jpg";
 
 const SEASON_END = new Date("2026-08-10T23:59:59Z");
 
@@ -123,65 +122,23 @@ export default function HomePage() {
 
       {/* ── HERO ──────────────────────────────────────────────────── */}
       <section className="hero">
-        {/* Full-quality img tag — gold filter shifts blue tones warm */}
-        <img src={heroImg} alt="Season 3 — Devoured Heaven" className="hero-main-img" />
+        <img src={heroImg} alt="Devoured Heaven" className="hero-main-img" />
         <div className="hero-gradient" />
-        <div className="hero-right">
-          <img src={heroImg} alt="" style={{
-            width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 10%",
-            filter: "sepia(0.4) hue-rotate(8deg) saturate(1.8) brightness(0.9)",
-          }} />
-        </div>
 
         <div className="hero-content">
-          <div className="eyebrow" style={{ animationDelay: "0.1s", animation: "fadeInUp 0.6s ease 0.1s both" }}>
-            <span className="eyebrow-dot" />
-            Season 3 · Now Live
-          </div>
-
           <h1 style={{
             fontFamily: "var(--font-display)",
-            fontSize: "clamp(48px, 11vw, 88px)",
+            fontSize: "clamp(38px, 11vw, 88px)",
             fontWeight: 700,
             letterSpacing: "0.06em",
             lineHeight: 0.95,
-            marginBottom: 10,
+            marginBottom: 28,
             animation: "fadeInUp 0.6s ease 0.2s both",
           }} className="text-gold-gradient">
             DEVOURED<br />HEAVEN
           </h1>
 
-          <p style={{
-            fontStyle: "italic",
-            color: "rgba(240,240,240,0.45)",
-            fontSize: 14,
-            marginBottom: 28,
-            animation: "fadeInUp 0.6s ease 0.3s both",
-          }}>
-            "Heaven fell. Something ate it. You are next."
-          </p>
-
-          <div className="countdown-row" style={{ marginBottom: 28, animation: "fadeInUp 0.6s ease 0.35s both" }}>
-            {[
-              { val: cd.d, label: "Days" },
-              { val: cd.h, label: "Hrs" },
-              { val: cd.m, label: "Min" },
-              { val: cd.s, label: "Sec" },
-            ].map(({ val, label }) => (
-              <div key={label} className="countdown-box">
-                <span className="countdown-num">{String(val).padStart(2, "0")}</span>
-                <span className="countdown-label">{label}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="bonus-strip" style={{ marginBottom: 32, animation: "fadeInUp 0.6s ease 0.4s both" }}>
-            <span className="bonus-pill">+20% Solars</span>
-            <span className="bonus-pill">+15% XP</span>
-            <span className="bonus-pill">+10% Drop Rate</span>
-          </div>
-
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", animation: "fadeInUp 0.6s ease 0.45s both" }}>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", animation: "fadeInUp 0.6s ease 0.35s both" }}>
             <button className="btn btn-primary btn-lg" onClick={() => setShowReg(true)}>
               <MessageCircle size={16} />
               Join the Realm
