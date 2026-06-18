@@ -1,186 +1,352 @@
 import { useState, useEffect } from "react";
-const heroImg = "/hero-banner.jpg";
-const deathNoteImg = "/death-note-banner.jpg";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/lib/auth";
+import RegistrationModal from "@/components/RegistrationModal";
+import { apiFetch, WHATSAPP_GROUPS } from "@/lib/api";
+import {
+  MessageCircle, Sword, Castle, Users, Star,
+  Globe, Layers, Zap, ChevronRight
+} from "lucide-react";
+import heroImg from "@assets/hero_1781751469798.jpg";
+import signinBg from "@assets/126100858315462481_1781751469800.jpg";
 
-const SLIDES = [
-  { img: heroImg,       season: "SEASON TWO", preTitle: "Asta",  accent: "Sword",  postTitle: "Out in Spin!" },
-  { img: deathNoteImg,  season: "SEASON TWO", preTitle: "Death", accent: "Note",   postTitle: "Out in Spin!" },
+const SEASON_END = new Date("2026-08-10T23:59:59Z");
+
+function useCountdown(target: Date) {
+  const [diff, setDiff] = useState(target.getTime() - Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setDiff(target.getTime() - Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const t = Math.max(0, diff);
+  return {
+    d: Math.floor(t / 86400000),
+    h: Math.floor((t % 86400000) / 3600000),
+    m: Math.floor((t % 3600000) / 60000),
+    s: Math.floor((t % 60000) / 1000),
+  };
+}
+
+const EVENTS = [
+  {
+    Icon: Star,
+    name: "The Consuming",
+    desc: "Heaven hungers. Double XP for all kills.",
+    bonuses: ["+50% XP", "Difficulty ×1.3"],
+  },
+  {
+    Icon: Zap,
+    name: "Godfall Surge",
+    desc: "The gods fall faster than ever.",
+    bonuses: ["Boss ×3", "Drop ×2.5"],
+  },
+  {
+    Icon: Globe,
+    name: "The Last Feast",
+    desc: "Final push before the season closes.",
+    bonuses: ["Difficulty ×2", "Rewards ×3"],
+  },
 ];
 
-const TICKER_ITEMS = [
-  "Season 2 Now Live", "100+ Dungeon Floors", "142 Bot Commands", "AI-Powered NPCs",
-  "Ranked PvP Seasons", "WhatsApp RPG", "2 Active Bots", "Guilds & Empires",
-  "Legendary Weapons", "Custom Titles", "Gacha Summons", "World Boss Events",
-];
-
-const COMMANDS = [
-  { icon: "⚔️", name: "!register",  desc: "Create your character",         cat: "Core" },
-  { icon: "🏰", name: "!dungeon",   desc: "Battle through 100 floors",     cat: "Combat" },
-  { icon: "🗡️", name: "!hunt",      desc: "Hunt monsters for XP & loot",  cat: "Combat" },
-  { icon: "📊", name: "!profile",   desc: "View your stats & gear",        cat: "Core" },
-  { icon: "🛒", name: "!shop",      desc: "Buy weapons & potions",         cat: "Economy" },
-  { icon: "⚡", name: "!pvp",       desc: "Challenge another player",      cat: "Combat" },
-  { icon: "🎁", name: "!daily",     desc: "Claim daily gold & gems",       cat: "Core" },
-  { icon: "✨", name: "!skills",    desc: "Equip your skill slots",        cat: "Build" },
-  { icon: "🏛️", name: "!guild",     desc: "Create or join a guild",        cat: "Social" },
-  { icon: "🏦", name: "!bank",      desc: "Loans, deposits & interest",    cat: "Economy" },
-  { icon: "🎒", name: "!inventory", desc: "Manage your items",             cat: "Core" },
-  { icon: "📜", name: "!quests",    desc: "Track active quests",           cat: "Core" },
-  { icon: "🐉", name: "!boss",      desc: "Fight the world boss",          cat: "Combat" },
-  { icon: "🃏", name: "!summon",    desc: "Spend gems to pull cards",      cat: "Gacha" },
-  { icon: "🗺️", name: "!explore",   desc: "Discover hidden world events",  cat: "World" },
-  { icon: "💰", name: "!work",      desc: "Earn steady profession income", cat: "Economy" },
+const SPIN_POOL = [
+  { Icon: Sword, name: "Raphael's Blade", type: "Legendary Weapon", rarity: "legendary", rarityColor: "#FFB830" },
+  { Icon: Star, name: "Celestia's Bow", type: "Legendary Weapon", rarity: "legendary", rarityColor: "#FFB830" },
+  { Icon: Globe, name: "First Appetite", type: "Mythic Weapon", rarity: "mythic", rarityColor: "#ff6b00" },
+  { Icon: Layers, name: "Devoured Fragment", type: "Epic Consumable", rarity: "epic", rarityColor: "#9b59b6" },
+  { Icon: Zap, name: "Heaven's Edge", type: "Legendary Weapon", rarity: "legendary", rarityColor: "#FFB830" },
+  { Icon: Star, name: "Solar Crown", type: "Mythic Accessory", rarity: "mythic", rarityColor: "#ff6b00" },
 ];
 
 const FEATURES = [
-  { icon: "⚔️", title: "Full RPG Combat",    desc: "Turn-based battles with skills, criticals, and status effects. Solo dungeons, party raids, and PvP." },
-  { icon: "🌍", title: "Open World",          desc: "Explore regions, trigger random events, and face invasions, plagues, and treasure surges." },
-  { icon: "🏰", title: "Guilds & Empires",   desc: "Found a guild, build your empire, and claim territory. Empire groups link to WhatsApp communities." },
-  { icon: "🤖", title: "AI-Powered NPCs",    desc: "Characters respond dynamically with Groq, Gemini, and OpenAI powering intelligent dialogue." },
-  { icon: "🃏", title: "Cards & Gacha",      desc: "Summon legendary characters, collect rare cards, and build powerful deck combinations." },
-  { icon: "🏆", title: "Ranked Seasons",     desc: "Compete in ranked dungeons and PvP ladders. Earn exclusive titles and season pass rewards." },
+  { Icon: Sword,   title: "Combat",     desc: "14+ classes. Hunt, fight, ascend." },
+  { Icon: Castle,  title: "Dungeons",   desc: "100-floor dungeons. Solo or party." },
+  { Icon: Users,   title: "PvP Arena",  desc: "Ranked battles via Glicko-2 rating." },
+  { Icon: Globe,   title: "Factions",   desc: "Found or join. 5 upgrade tiers." },
+  { Icon: Layers,  title: "Gacha",      desc: "Cards, spins, pity system for legendaries." },
+  { Icon: Star,    title: "World Bosses", desc: "Server-wide events. Priority loot for premium." },
 ];
 
-function HeroSlider() {
-  const [current, setCurrent]   = useState(0);
-  const [animating, setAnimating] = useState(false);
-
-  const goTo = (next: number) => {
-    if (animating || next === current) return;
-    setAnimating(true);
-    setTimeout(() => { setCurrent(next); setAnimating(false); }, 600);
+function FadeCard({ children, delay = 0, style = {} }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
+  const [visible, setVisible] = useState(false);
+  const ref = (el: HTMLDivElement | null) => {
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold: 0.08 });
+    obs.observe(el);
   };
+  return (
+    <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "none" : "translateY(16px)", transition: `opacity 0.5s ease ${delay}s, transform 0.5s ease ${delay}s`, ...style }}>
+      {children}
+    </div>
+  );
+}
+
+export default function HomePage() {
+  const { isLoggedIn } = useAuth();
+  const [, navigate] = useLocation();
+  const [showReg, setShowReg] = useState(false);
+  const [form, setForm] = useState({ username: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+  const [lockout, setLockout] = useState<number | null>(null);
+  const [lockTimer, setLockTimer] = useState(0);
+  const [showPw, setShowPw] = useState(false);
+  const cd = useCountdown(SEASON_END);
 
   useEffect(() => {
-    const id = setInterval(() => goTo((current + 1) % SLIDES.length), 7000);
-    return () => clearInterval(id);
-  }, [current, animating]);
+    if (lockout) {
+      const id = setInterval(() => {
+        const r = Math.max(0, Math.ceil((lockout - Date.now()) / 1000));
+        setLockTimer(r);
+        if (r === 0) { setLockout(null); setAttempts(0); }
+      }, 1000);
+      return () => clearInterval(id);
+    }
+  }, [lockout]);
 
-  const slide = SLIDES[current];
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    if (lockout) return;
+    setLoading(true); setError("");
+    try {
+      const data = await apiFetch("/login", { method: "POST", body: JSON.stringify(form) });
+      navigate(`/profile/${data.username}`);
+    } catch {
+      const n = attempts + 1; setAttempts(n);
+      if (n >= 5) { setLockout(Date.now() + 300000); setError("Too many attempts. Wait 5 min."); }
+      else setError("Wrong username or password.");
+    } finally { setLoading(false); }
+  }
 
   return (
-    <div className="hero">
-      {SLIDES.map((s, i) => (
-        <img key={i} src={s.img} alt="" className={`hero-img hero-slide-img${i === current ? " hero-slide-active" : ""}${animating && i === current ? " hero-slide-exit" : ""}`} />
-      ))}
-      <div className="hero-overlay" />
-      <div className={`hero-content${animating ? " hero-content-exit" : ""}`}>
-        <div className="hero-season">{slide.season}</div>
-        <h1 className="hero-title">
-          {slide.preTitle} <span>{slide.accent}</span><br />{slide.postTitle}
-        </h1>
-        <div className="hero-btns">
-          <a
-            href="https://wa.me/2347062301848?text=Hi!%20I%20want%20to%20join%20Astral%20of%20the%20Sun%20RPG%20bot."
-            target="_blank" rel="noopener noreferrer"
-            className="btn-primary hero-btn"
-            style={{ textDecoration: "none" }}
-          >Join Now</a>
-          <a
-            href="#commands"
-            className="btn-outline hero-btn"
-            style={{ textDecoration: "none" }}
-            onClick={(e) => {
-              e.preventDefault()
-              document.getElementById("commands")?.scrollIntoView({ behavior: "smooth" })
-            }}
-          >View Commands</a>
+    <div>
+
+      {/* ── HERO ──────────────────────────────────────────────────── */}
+      <section className="hero">
+        {/* Full-quality img tag — gold filter shifts blue tones warm */}
+        <img src={heroImg} alt="Season 3 — Devoured Heaven" className="hero-main-img" />
+        <div className="hero-gradient" />
+        <div className="hero-right">
+          <img src={heroImg} alt="" style={{
+            width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 10%",
+            filter: "sepia(0.4) hue-rotate(8deg) saturate(1.8) brightness(0.9)",
+          }} />
         </div>
-      </div>
-      <div className="hero-dots">
-        {SLIDES.map((_, i) => (
-          <button key={i} className={`hero-dot${i === current ? " active" : ""}`}
-            onClick={() => goTo(i)} aria-label={`Slide ${i + 1}`} />
-        ))}
-      </div>
-    </div>
-  );
-}
 
-function Ticker() {
-  const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
-  return (
-    <div className="ticker-strip">
-      <div className="ticker-track">
-        {items.map((t, i) => (
-          <span key={i} className="ticker-item">
-            <span className="ticker-dot" />
-            {t}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
+        <div className="hero-content">
+          <div className="eyebrow" style={{ animationDelay: "0.1s", animation: "fadeInUp 0.6s ease 0.1s both" }}>
+            <span className="eyebrow-dot" />
+            Season 3 · Now Live
+          </div>
 
-export default function Home() {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <h1 style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(48px, 11vw, 88px)",
+            fontWeight: 700,
+            letterSpacing: "0.06em",
+            lineHeight: 0.95,
+            marginBottom: 10,
+            animation: "fadeInUp 0.6s ease 0.2s both",
+          }} className="text-gold-gradient">
+            DEVOURED<br />HEAVEN
+          </h1>
 
-      <HeroSlider />
-      <Ticker />
+          <p style={{
+            fontStyle: "italic",
+            color: "rgba(240,240,240,0.45)",
+            fontSize: 14,
+            marginBottom: 28,
+            animation: "fadeInUp 0.6s ease 0.3s both",
+          }}>
+            "Heaven fell. Something ate it. You are next."
+          </p>
 
-      <div className="stat-bar">
-        <div className="stat-item"><div className="stat-value">100+</div><div className="stat-label">Dungeon Floors</div></div>
-        <div className="stat-item"><div className="stat-value">142</div><div className="stat-label">Commands</div></div>
-        <div className="stat-item"><div className="stat-value">2</div><div className="stat-label">Active Bots</div></div>
-        <div className="stat-item"><div className="stat-value">S2</div><div className="stat-label">Current Season</div></div>
-      </div>
+          <div className="countdown-row" style={{ marginBottom: 28, animation: "fadeInUp 0.6s ease 0.35s both" }}>
+            {[
+              { val: cd.d, label: "Days" },
+              { val: cd.h, label: "Hrs" },
+              { val: cd.m, label: "Min" },
+              { val: cd.s, label: "Sec" },
+            ].map(({ val, label }) => (
+              <div key={label} className="countdown-box">
+                <span className="countdown-num">{String(val).padStart(2, "0")}</span>
+                <span className="countdown-label">{label}</span>
+              </div>
+            ))}
+          </div>
 
-      {/* Bot Commands */}
-      <div className="card" id="commands">
-        <div className="section-title">Bot Commands</div>
-        <div className="commands-grid">
-          {COMMANDS.map((cmd) => (
-            <div key={cmd.name} className="cmd-card">
-              <div className="cmd-cat">{cmd.cat}</div>
-              <div className="cmd-name">{cmd.name}</div>
-              <div className="cmd-desc">{cmd.desc}</div>
-            </div>
-          ))}
+          <div className="bonus-strip" style={{ marginBottom: 32, animation: "fadeInUp 0.6s ease 0.4s both" }}>
+            <span className="bonus-pill">+20% Solars</span>
+            <span className="bonus-pill">+15% XP</span>
+            <span className="bonus-pill">+10% Drop Rate</span>
+          </div>
+
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", animation: "fadeInUp 0.6s ease 0.45s both" }}>
+            <button className="btn btn-primary btn-lg" onClick={() => setShowReg(true)}>
+              <MessageCircle size={16} />
+              Join the Realm
+            </button>
+            <Link href="/premium" className="btn btn-outline btn-lg">
+              Season Pass
+              <ChevronRight size={15} />
+            </Link>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* About */}
-      <div className="card">
-        <div className="section-title">About the Bot</div>
-        <div className="section-heading">What is Astral of the Sun?</div>
-        <p style={{ fontSize: "0.82rem", color: "var(--muted)", lineHeight: "1.7", marginBottom: "20px", letterSpacing: "0.02em" }}>
-          Astral of the Sun is a fully-featured WhatsApp RPG bot — a living, breathing game world inside your group chats.
-          Level up, craft gear, battle bosses, run dungeons with your party, build empires, and compete in ranked seasons.
-          Season 2 brings new classes, legendary weapons, and the Asta ability arc.
-        </p>
-        <div className="features-grid">
-          {FEATURES.map((f) => (
-            <div key={f.title} className="feature-card">
-              <div className="feature-icon">{f.icon}</div>
-              <div className="feature-title">{f.title}</div>
-              <div className="feature-desc">{f.desc}</div>
-            </div>
-          ))}
+      {/* ── EVENTS ────────────────────────────────────────────────── */}
+      <section className="section">
+        <div className="container">
+          <div style={{ marginBottom: 32 }}>
+            <h2 className="section-title">Season Events</h2>
+            <p className="section-sub">Active throughout Season 3</p>
+          </div>
+          <div className="cards-grid-3">
+            {EVENTS.map(({ Icon, name, desc, bonuses }, i) => (
+              <FadeCard key={name} delay={i * 0.08}>
+                <div className="card" style={{ height: "100%" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,184,48,0.08)", border: "1px solid rgba(255,184,48,0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                    <Icon size={18} color="var(--gold)" />
+                  </div>
+                  <h3 style={{ fontSize: 17, letterSpacing: "0.06em", marginBottom: 6 }}>{name}</h3>
+                  <p style={{ color: "var(--text-grey)", fontSize: 13, marginBottom: 14, lineHeight: 1.5 }}>{desc}</p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {bonuses.map(b => <span key={b} className="badge badge-gold badge-pill">{b}</span>)}
+                  </div>
+                </div>
+              </FadeCard>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Getting started */}
-      <div className="card">
-        <div className="section-title">Getting Started</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {[
-            ["1", "Add the bot to your WhatsApp group", "Ask the admin to add the Astral bot number to your group."],
-            ["2", "Register your character",            "Send !register in the group chat to create your RPG character."],
-            ["3", "Start your adventure",               "Use !help to see all commands and begin your journey."],
-          ].map(([n, title, desc]) => (
-            <div key={n} style={{ display: "flex", gap: "14px", alignItems: "flex-start" }}>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.72rem", fontWeight: 700, flexShrink: 0, marginTop: 2 }}>{n}</div>
-              <div>
-                <div style={{ fontSize: "0.84rem", fontWeight: 600, color: "var(--text)", marginBottom: 2 }}>{title}</div>
-                <div style={{ fontSize: "0.74rem", color: "var(--muted)", lineHeight: 1.5 }}>{desc}</div>
+      {/* ── SPIN POOL (auto-scroll) ───────────────────────────────── */}
+      <section className="section" style={{ paddingTop: 0 }}>
+        <div className="container" style={{ marginBottom: 24 }}>
+          <h2 className="section-title">What Falls From Heaven</h2>
+          <p className="section-sub">Season 3 exclusive weapons · Hover to pause</p>
+        </div>
+        <div className="marquee-wrap">
+          <div className="marquee-inner">
+            {[...SPIN_POOL, ...SPIN_POOL].map((item, i) => (
+              <div key={i} className={`card rarity-${item.rarity}`} style={{ minWidth: 168, textAlign: "center", padding: "20px 16px" }}>
+                <span className="badge badge-pill" style={{ fontSize: 9, marginBottom: 12, borderColor: item.rarityColor, color: item.rarityColor }}>
+                  {item.rarity.toUpperCase()}
+                </span>
+                <div style={{ width: 48, height: 48, margin: "8px auto 12px", borderRadius: 12, background: `${item.rarityColor}12`, border: `1px solid ${item.rarityColor}30`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <item.Icon size={22} color={item.rarityColor} />
+                </div>
+                <h3 style={{ fontSize: 14, letterSpacing: "0.05em", marginBottom: 4 }}>{item.name}</h3>
+                <p style={{ fontSize: 11, color: "var(--text-grey)" }}>{item.type}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── JOIN ──────────────────────────────────────────────────── */}
+      <section className="section" style={{ paddingTop: 0 }}>
+        <div className="container">
+          <div style={{ marginBottom: 24 }}>
+            <h2 className="section-title">Join the Realm</h2>
+          </div>
+          <div className="cards-grid-2" style={{ marginBottom: 16 }}>
+            {WHATSAPP_GROUPS.map(g => (
+              <FadeCard key={g.name}>
+                <div className="card" style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <MessageCircle size={20} color="#22c55e" />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, fontFamily: "var(--font-display)", letterSpacing: "0.04em", marginBottom: 4 }}>{g.name}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-grey)", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                      <Users size={11} />
+                      {g.members} members
+                    </div>
+                    <a href={g.link} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm">
+                      Join Group
+                    </a>
+                  </div>
+                </div>
+              </FadeCard>
+            ))}
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <button className="btn btn-ghost" onClick={() => setShowReg(true)}>
+              New here? Create an account
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURES ──────────────────────────────────────────────── */}
+      <section className="section" style={{ paddingTop: 0 }}>
+        <div className="container">
+          <div style={{ marginBottom: 32 }}>
+            <h2 className="section-title">What Awaits You</h2>
+          </div>
+          <div className="cards-grid-6">
+            {FEATURES.map(({ Icon, title, desc }, i) => (
+              <FadeCard key={title} delay={i * 0.07}>
+                <div className="card" style={{ height: "100%" }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,184,48,0.08)", border: "1px solid rgba(255,184,48,0.12)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                    <Icon size={16} color="var(--gold)" />
+                  </div>
+                  <h3 style={{ fontSize: 15, letterSpacing: "0.06em", marginBottom: 6 }}>{title}</h3>
+                  <p style={{ fontSize: 13, color: "var(--text-grey)", lineHeight: 1.5 }}>{desc}</p>
+                </div>
+              </FadeCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SIGN IN (logged-out only) ──────────────────────────────── */}
+      {!isLoggedIn && (
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="container">
+            <div className="signin-section" style={{ maxWidth: 560, margin: "0 auto" }}>
+              <div className="signin-section-bg" style={{ backgroundImage: `url(${signinBg})` }} />
+              <div className="signin-section-content">
+                <h2 style={{ fontSize: 22, letterSpacing: "0.08em", marginBottom: 6, textAlign: "center" }}>YOUR LEGEND AWAITS</h2>
+                <p style={{ color: "var(--text-grey)", fontSize: 13, marginBottom: 24, textAlign: "center" }}>
+                  Sign in to track progress and manage your character.
+                </p>
+                <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div>
+                    <label className="input-label">Username</label>
+                    <input className="input" placeholder="YourUsername" value={form.username}
+                      onChange={e => setForm(f => ({ ...f, username: e.target.value }))} disabled={!!lockout} required />
+                  </div>
+                  <div>
+                    <label className="input-label">Password</label>
+                    <div style={{ position: "relative" }}>
+                      <input type={showPw ? "text" : "password"} className="input" placeholder="••••••••" value={form.password}
+                        onChange={e => setForm(f => ({ ...f, password: e.target.value }))} disabled={!!lockout} required style={{ paddingRight: 44 }} />
+                      <button type="button" onClick={() => setShowPw(v => !v)}
+                        style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--text-grey)", display: "flex", alignItems: "center" }}>
+                        {showPw
+                          ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                          : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>}
+                      </button>
+                    </div>
+                  </div>
+                  {error && <p style={{ color: "var(--error)", fontSize: 12 }}>{error}{lockout ? ` (${lockTimer}s)` : ""}</p>}
+                  <button type="submit" className="btn btn-primary btn-full" disabled={loading || !!lockout} style={{ marginTop: 4 }}>
+                    {loading ? "Signing in..." : "Sign In"}
+                  </button>
+                </form>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 14, flexWrap: "wrap", gap: 8 }}>
+                  <Link href="/login" className="btn btn-ghost btn-sm">Forgot password?</Link>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setShowReg(true)}>New here?</button>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        </section>
+      )}
 
+      {showReg && <RegistrationModal onClose={() => setShowReg(false)} />}
     </div>
   );
 }
