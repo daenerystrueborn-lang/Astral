@@ -4,6 +4,12 @@ import { useAuth } from "@/lib/auth";
 import { apiFetch, apiPatch } from "@/lib/api";
 import { Shield, Sword, Trophy, Skull, Globe, Star, Edit2, ChevronRight, Zap, Loader2 } from "lucide-react";
 
+interface FollowerTier {
+  label: string;
+  emoji: string;
+  payout: number;
+}
+
 interface PlayerProfile {
   username: string;
   name: string;
@@ -31,6 +37,9 @@ interface PlayerProfile {
   premium: boolean;
   pfp: string | null;
   banner: string | null;
+  followers?: number;
+  followersFormatted?: string;
+  followerTier?: FollowerTier;
 }
 
 const STATS_MAP = [
@@ -178,6 +187,11 @@ export default function PlayerProfilePage() {
                   {profile.faction.role} · {profile.faction.name}
                 </button>
               )}
+              {profile.followerTier && (profile.followers ?? 0) > 0 && (
+                <span className="badge badge-pill" style={{ background: "rgba(255,184,48,0.06)", border: "1px solid rgba(255,184,48,0.25)", color: "var(--gold)" }}>
+                  {profile.followerTier.emoji} {profile.followerTier.label}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -281,6 +295,41 @@ export default function PlayerProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* Followers */}
+        {profile.followerTier && (profile.followers ?? 0) > 0 && (
+          <div className="card" style={{ marginBottom: 14 }}>
+            <h3 style={{ fontSize: 13, letterSpacing: "0.1em", marginBottom: 14 }}>SOCIAL INFLUENCE</h3>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+              {/* Big emoji + count */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 80 }}>
+                <div style={{ fontSize: 36, lineHeight: 1 }}>{profile.followerTier.emoji}</div>
+                <div style={{ fontFamily: "var(--font-num)", fontWeight: 700, fontSize: 22, color: "var(--gold)", marginTop: 4 }}>
+                  {profile.followersFormatted ?? profile.followers?.toLocaleString()}
+                </div>
+                <div style={{ fontSize: 10, color: "var(--text-grey)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 2 }}>Followers</div>
+              </div>
+
+              {/* Tier info */}
+              <div style={{ flex: 1, minWidth: 140 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, letterSpacing: "0.05em", color: "var(--text-white)", marginBottom: 4 }}>
+                  {profile.followerTier.label}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text-grey)", lineHeight: 1.5 }}>
+                  Social tier based on follower count
+                </div>
+                {profile.followerTier.payout > 0 && (
+                  <div style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,184,48,0.08)", border: "1px solid rgba(255,184,48,0.2)", borderRadius: 20, padding: "4px 12px" }}>
+                    <Star size={11} color="var(--gold)" />
+                    <span style={{ fontSize: 11, color: "var(--gold)", fontFamily: "var(--font-display)", letterSpacing: "0.04em" }}>
+                      +{profile.followerTier.payout} Solar/day bonus
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Faction */}
         {profile.faction && (

@@ -125,38 +125,36 @@ export default function HomePage() {
         <div className="hero-gradient" />
 
         <div className="hero-content">
-          <h1 style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(38px, 11vw, 88px)",
-            fontWeight: 700,
-            letterSpacing: "0.06em",
-            lineHeight: 0.95,
-            marginBottom: 10,
-            animation: "fadeInUp 0.6s ease 0.2s both",
-          }} className="text-gold-gradient">
-            DEVOURED<br />HEAVEN
+          <h1 style={{ marginBottom: 12, lineHeight: 1 }}>
+            <span className="hero-word-devoured">DEVOURED</span>
+            <span className="hero-word-heaven">HEAVEN</span>
           </h1>
 
           <p style={{
-            color: "rgba(240,230,200,0.35)",
-            fontSize: 13,
+            color: "rgba(240,230,200,0.55)",
+            fontSize: 14,
             fontStyle: "italic",
-            letterSpacing: "0.04em",
-            marginBottom: 28,
-            animation: "fadeInUp 0.6s ease 0.28s both",
+            letterSpacing: "0.06em",
+            marginBottom: 32,
+            animation: "fadeInUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.5s both",
+            textShadow: "0 1px 12px rgba(0,0,0,0.8)",
           }}>
             Heaven fell. Something ate it. You are next.
           </p>
 
-          <div style={{ display: "flex", gap: 10, flexWrap: "nowrap", animation: "fadeInUp 0.6s ease 0.35s both" }}>
-            <button className="btn btn-primary" onClick={() => setShowReg(true)}>
-              <MessageCircle size={14} />
-              Join the Realm
-            </button>
-            <Link href="/premium" className="btn btn-outline">
-              Season Pass
-              <ChevronRight size={13} />
-            </Link>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", animation: "fadeInUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.62s both" }}>
+            <span className="btn-glow-wrap">
+              <button className="btn btn-primary" onClick={() => setShowReg(true)}>
+                <MessageCircle size={14} />
+                Join the Realm
+              </button>
+            </span>
+            <span className="btn-glow-wrap">
+              <Link href="/premium" className="btn btn-outline">
+                Season Pass
+                <ChevronRight size={13} />
+              </Link>
+            </span>
           </div>
         </div>
       </section>

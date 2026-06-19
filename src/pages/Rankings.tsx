@@ -107,8 +107,8 @@ export default function RankingsPage() {
                     <div key={p.rank} className={`podium-card podium-${p.rank}`} onClick={() => navigate(`/profile/${p.name}`)}>
                       <div className="podium-rank">{p.rank}</div>
                       <Avatar size={72} />
-                      <div style={{ fontWeight: 700, fontSize: 16, fontFamily: "var(--font-display)", letterSpacing: "0.04em", marginTop: 10, marginBottom: 4 }}>{p.name}</div>
-                      <div style={{ fontStyle: "italic", color: "var(--gold)", fontSize: 12, marginBottom: 8 }}>{p.title}</div>
+                      <div style={{ fontWeight: 700, fontSize: 13, fontFamily: "var(--font-display)", letterSpacing: "0.04em", marginTop: 8, marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
+                      <div style={{ fontStyle: "italic", color: "var(--gold)", fontSize: 11, marginBottom: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.title}</div>
                       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 4 }}>
                         <span className="badge badge-pill" style={{ fontSize: 10 }}>LVL {p.level}</span>
                         {p.faction && <span className="badge badge-gold badge-pill" style={{ fontSize: 10 }}>{p.faction}</span>}
@@ -151,31 +151,6 @@ export default function RankingsPage() {
             </div>
           </section>
 
-          {/* HOF */}
-          {hof.length > 0 && (
-            <section className="section" style={{ paddingTop: 0 }}>
-              <div className="container">
-                <h2 className="section-title" style={{ marginBottom: 24 }}>Hall of Fame</h2>
-                <div className="hof-grid">
-                  {hof.map(h => {
-                    const Icon = HOF_ICONS[h.label] ?? Trophy;
-                    return (
-                      <div key={h.label} className="card" style={{ textAlign: "center" }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,184,48,0.08)", border: "1px solid rgba(255,184,48,0.12)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px" }}>
-                          <Icon size={16} color="var(--gold)" />
-                        </div>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-grey)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 3 }}>{h.label}</div>
-                        <Avatar size={36} />
-                        <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, marginTop: 6, marginBottom: 4 }}>{h.player}</div>
-                        <div style={{ fontFamily: "var(--font-num)", fontWeight: 700, fontSize: 20, color: "var(--gold)" }}>{h.stat}</div>
-                        <div style={{ fontSize: 9, color: "var(--text-grey)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h.unit}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
-          )}
         </>
       )}
     </div>
