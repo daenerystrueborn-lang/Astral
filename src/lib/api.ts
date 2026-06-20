@@ -23,6 +23,21 @@ export async function apiPatch(path: string, body: unknown) {
   return apiFetch(path, { method: "PATCH", body: JSON.stringify(body) });
 }
 
+export async function uploadToImgBB(file: File): Promise<string> {
+  const key = (import.meta as any).env?.VITE_IMGBB_KEY;
+  if (!key) throw new Error("ImgBB API key not configured (VITE_IMGBB_KEY)");
+  const form = new FormData();
+  form.append("image", file);
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${encodeURIComponent(key)}`, {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) throw new Error("Image upload failed");
+  const data = await res.json();
+  if (!data?.data?.url) throw new Error("ImgBB returned no URL");
+  return data.data.url as string;
+}
+
 export const BOT_WA =
   (import.meta as any).env?.VITE_BOT_WA ?? "https://wa.me/2349012345678";
 
