@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRoute, useLocation } from "wouter";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/context/AuthContext";
 import { apiFetch, apiPatch } from "@/lib/api";
 import { Shield, Sword, Trophy, Skull, Globe, Star, Edit2, ChevronRight, Zap, Loader2 } from "lucide-react";
 
@@ -28,7 +28,7 @@ interface PlayerProfile {
   pvp: number;
   boss: number;
   dun: number;
-  weapon: { name: string; type: string; rarity: string; color: string };
+  weapon: { name: string; type: string; rarity: string; color: string } | null;
   titles: string[];
   equippedTitle: string;
   solars: number;
@@ -244,21 +244,23 @@ export default function PlayerProfilePage() {
           </div>
         </div>
 
-        {/* Weapon */}
-        <div className="card" style={{ marginBottom: 14 }}>
-          <h3 style={{ fontSize: 13, letterSpacing: "0.1em", marginBottom: 14 }}>EQUIPPED</h3>
-          <div className={`gear-slot rarity-${profile.weapon.rarity}`} style={{ border: "1px solid" }}>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: `${profile.weapon.color}12`, border: `1px solid ${profile.weapon.color}30`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Sword size={18} color={profile.weapon.color} />
-            </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 14, fontFamily: "var(--font-display)", letterSpacing: "0.04em" }}>{profile.weapon.name}</div>
-              <span className="badge" style={{ fontSize: 9, marginTop: 4, borderColor: profile.weapon.color, color: profile.weapon.color }}>
-                {profile.weapon.rarity.toUpperCase()}
-              </span>
+        {/* Weapon — only if equipped */}
+        {profile.weapon && (
+          <div className="card" style={{ marginBottom: 14 }}>
+            <h3 style={{ fontSize: 13, letterSpacing: "0.1em", marginBottom: 14 }}>EQUIPPED</h3>
+            <div className={`gear-slot rarity-${profile.weapon.rarity}`} style={{ border: "1px solid" }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: `${profile.weapon.color}12`, border: `1px solid ${profile.weapon.color}30`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Sword size={18} color={profile.weapon.color} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, fontFamily: "var(--font-display)", letterSpacing: "0.04em" }}>{profile.weapon.name}</div>
+                <span className="badge" style={{ fontSize: 9, marginTop: 4, borderColor: profile.weapon.color, color: profile.weapon.color }}>
+                  {profile.weapon.rarity.toUpperCase()}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Titles */}
         {profile.titles.length > 0 && (
@@ -301,7 +303,6 @@ export default function PlayerProfilePage() {
           <div className="card" style={{ marginBottom: 14 }}>
             <h3 style={{ fontSize: 13, letterSpacing: "0.1em", marginBottom: 14 }}>SOCIAL INFLUENCE</h3>
             <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-              {/* Big emoji + count */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 80 }}>
                 <div style={{ fontSize: 36, lineHeight: 1 }}>{profile.followerTier.emoji}</div>
                 <div style={{ fontFamily: "var(--font-num)", fontWeight: 700, fontSize: 22, color: "var(--gold)", marginTop: 4 }}>
@@ -309,8 +310,6 @@ export default function PlayerProfilePage() {
                 </div>
                 <div style={{ fontSize: 10, color: "var(--text-grey)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 2 }}>Followers</div>
               </div>
-
-              {/* Tier info */}
               <div style={{ flex: 1, minWidth: 140 }}>
                 <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, letterSpacing: "0.05em", color: "var(--text-white)", marginBottom: 4 }}>
                   {profile.followerTier.label}

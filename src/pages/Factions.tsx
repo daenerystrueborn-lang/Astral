@@ -1,20 +1,16 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
-import { Shield, Users, Sword, Loader2 } from "lucide-react";
+import { Shield, Users, Loader2 } from "lucide-react";
 import goldBg from "@assets/5348093303816873_1781751469801.jpg";
 import { apiFetch } from "@/lib/api";
 
 interface Faction {
-  id: number;
-  guildId: string;
+  id: string;
   name: string;
+  tag: string | null;
+  leader: string;
   level: number;
-  members: number;
-  max: number;
-  wins: number;
-  losses: number;
-  vault: number;
-  topMember: string | null;
+  memberCount: number;
+  description: string | null;
 }
 
 const TIERS = [
@@ -26,11 +22,10 @@ const TIERS = [
 ];
 
 function score(f: Faction) {
-  return f.wins * 1000 + f.level * 200 + f.members * 10 + Math.floor(f.vault / 1000);
+  return f.level * 200 + f.memberCount * 10;
 }
 
 export default function FactionsPage() {
-  const [, navigate] = useLocation();
   const [factions, setFactions] = useState<Faction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -38,7 +33,7 @@ export default function FactionsPage() {
   useEffect(() => {
     setLoading(true);
     apiFetch("/factions")
-      .then((data: { factions: Faction[] }) => setFactions(data.factions ?? []))
+      .then((data: any) => setFactions(data.factions ?? []))
       .catch(() => setError("Failed to load factions. Make sure the API server is running."))
       .finally(() => setLoading(false));
   }, []);
@@ -90,9 +85,9 @@ export default function FactionsPage() {
                         <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, color: "var(--gold)", marginBottom: 8, letterSpacing: "0.05em" }}>{f.name}</div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center", marginBottom: 8 }}>
                           <span className="badge badge-pill" style={{ fontSize: 10 }}>LVL {f.level}/5</span>
-                          <span className="badge badge-pill" style={{ fontSize: 10 }}>{f.members}/{f.max}</span>
+                          <span className="badge badge-pill" style={{ fontSize: 10 }}><Users size={9} style={{ marginRight: 3 }} />{f.memberCount}</span>
                         </div>
-                        <div style={{ fontSize: 12, color: "var(--text-grey)" }}>{f.wins}W / {f.losses}L</div>
+                        {f.tag && <div style={{ fontSize: 11, color: "var(--text-grey)" }}>[{f.tag}]</div>}
                         <div style={{ fontSize: 11, color: "rgba(255,184,48,0.4)", marginTop: 6 }}>{score(f).toLocaleString()} pts</div>
                       </div>
                     );
@@ -117,10 +112,12 @@ export default function FactionsPage() {
                       <Shield size={16} color="var(--gold)" />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: 14, fontFamily: "var(--font-display)", letterSpacing: "0.04em" }}>{f.name}</div>
+                      <div style={{ fontWeight: 700, fontSize: 14, fontFamily: "var(--font-display)", letterSpacing: "0.04em" }}>
+                        {f.name}{f.tag ? ` [${f.tag}]` : ""}
+                      </div>
                       <div style={{ fontSize: 11, color: "var(--text-grey)", marginTop: 2, display: "flex", gap: 10 }}>
-                        <span style={{ display: "flex", alignItems: "center", gap: 3 }}><Sword size={10} />{f.wins}W/{f.losses}L</span>
-                        <span style={{ display: "flex", alignItems: "center", gap: 3 }}><Users size={10} />{f.members}/{f.max}</span>
+                        <span style={{ display: "flex", alignItems: "center", gap: 3 }}><Users size={10} />{f.memberCount} members</span>
+                        {f.leader && <span>Leader: {f.leader}</span>}
                       </div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>

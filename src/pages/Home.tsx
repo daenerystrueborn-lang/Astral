@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/context/AuthContext";
 import RegistrationModal from "@/components/RegistrationModal";
-import { apiFetch, WHATSAPP_GROUPS } from "@/lib/api";
+import { WHATSAPP_GROUPS } from "@/lib/api";
 import {
   MessageCircle, Sword, Castle, Users, Star,
   Globe, Layers, Zap, ChevronRight
@@ -57,11 +57,11 @@ const SPIN_POOL = [
 ];
 
 const FEATURES = [
-  { Icon: Sword,   title: "Combat",     desc: "14+ classes. Hunt, fight, ascend." },
-  { Icon: Castle,  title: "Dungeons",   desc: "100-floor dungeons. Solo or party." },
-  { Icon: Users,   title: "PvP Arena",  desc: "Ranked battles via Glicko-2 rating." },
-  { Icon: Globe,   title: "Factions",   desc: "Found or join. 5 upgrade tiers." },
-  { Icon: Layers,  title: "Gacha",      desc: "Cards, spins, pity system for legendaries." },
+  { Icon: Sword,   title: "Combat",       desc: "14+ classes. Hunt, fight, ascend." },
+  { Icon: Castle,  title: "Dungeons",     desc: "100-floor dungeons. Solo or party." },
+  { Icon: Users,   title: "PvP Arena",    desc: "Ranked battles via Glicko-2 rating." },
+  { Icon: Globe,   title: "Factions",     desc: "Found or join. 5 upgrade tiers." },
+  { Icon: Layers,  title: "Gacha",        desc: "Cards, spins, pity system for legendaries." },
   { Icon: Star,    title: "World Bosses", desc: "Server-wide events. Priority loot for premium." },
 ];
 
@@ -80,7 +80,7 @@ function FadeCard({ children, delay = 0, style = {} }: { children: React.ReactNo
 }
 
 export default function HomePage() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, login } = useAuth();
   const [, navigate] = useLocation();
   const [showReg, setShowReg] = useState(false);
   const [form, setForm] = useState({ username: "", password: "" });
@@ -106,14 +106,15 @@ export default function HomePage() {
     e.preventDefault();
     if (lockout) return;
     setLoading(true); setError("");
-    try {
-      const data = await apiFetch("/login", { method: "POST", body: JSON.stringify(form) });
-      navigate(`/profile/${data.username}`);
-    } catch {
+    const res = await login(form.username, form.password);
+    setLoading(false);
+    if (res.ok) {
+      navigate("/me");
+    } else {
       const n = attempts + 1; setAttempts(n);
       if (n >= 5) { setLockout(Date.now() + 300000); setError("Too many attempts. Wait 5 min."); }
-      else setError("Wrong username or password.");
-    } finally { setLoading(false); }
+      else setError(res.error || "Wrong username or password.");
+    }
   }
 
   return (

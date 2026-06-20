@@ -6,6 +6,7 @@ import { apiFetch } from "@/lib/api";
 
 interface RankPlayer {
   rank: number;
+  username: string | null;
   name: string;
   title: string;
   level: number;
@@ -17,23 +18,6 @@ interface RankPlayer {
   boss: number;
   dun: number;
 }
-
-interface HofEntry {
-  label: string;
-  player: string;
-  stat: string;
-  unit: string;
-}
-
-const HOF_ICONS: Record<string, React.ElementType> = {
-  "Most Kills": Sword,
-  "Highest Level": Star,
-  "Richest": Trophy,
-  "Most Dungeons": Globe,
-  "Most PvP Wins": Trophy,
-  "Most Deaths": Skull,
-  "Most Gems": Star,
-};
 
 function Avatar({ size = 40 }: { size?: number }) {
   return (
@@ -49,16 +33,14 @@ export default function RankingsPage() {
   const [, navigate] = useLocation();
   const [search, setSearch] = useState("");
   const [players, setPlayers] = useState<RankPlayer[]>([]);
-  const [hof, setHof] = useState<HofEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);
     apiFetch("/rankings")
-      .then((data: { players: RankPlayer[]; hof: HofEntry[] }) => {
+      .then((data: any) => {
         setPlayers(data.players ?? []);
-        setHof(data.hof ?? []);
       })
       .catch(() => setError("Failed to load rankings. Make sure the API server is running."))
       .finally(() => setLoading(false));
@@ -70,6 +52,10 @@ export default function RankingsPage() {
   );
 
   const podiumOrder = players.length >= 3 ? [players[1], players[0], players[2]] : players.slice(0, 3);
+
+  function goToProfile(p: RankPlayer) {
+    if (p.username) navigate(`/profile/${p.username}`);
+  }
 
   return (
     <div className="page-top">
@@ -104,7 +90,12 @@ export default function RankingsPage() {
                 <h2 className="section-title" style={{ marginBottom: 24, fontSize: 18 }}>Top Challengers</h2>
                 <div className="podium-container">
                   {podiumOrder.map(p => (
-                    <div key={p.rank} className={`podium-card podium-${p.rank}`} onClick={() => navigate(`/profile/${p.name}`)}>
+                    <div
+                      key={p.rank}
+                      className={`podium-card podium-${p.rank}`}
+                      onClick={() => goToProfile(p)}
+                      style={{ cursor: p.username ? "pointer" : "default" }}
+                    >
                       <div className="podium-rank">{p.rank}</div>
                       <Avatar size={72} />
                       <div style={{ fontWeight: 700, fontSize: 13, fontFamily: "var(--font-display)", letterSpacing: "0.04em", marginTop: 8, marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
@@ -135,7 +126,12 @@ export default function RankingsPage() {
                 <p style={{ color: "var(--text-grey)", textAlign: "center", padding: "32px 0", fontSize: 13 }}>No players found.</p>
               )}
               {filtered.map(p => (
-                <div key={p.rank} className={`lb-row lb-row-${p.rank <= 3 ? p.rank : ""}`} onClick={() => navigate(`/profile/${p.name}`)}>
+                <div
+                  key={p.rank}
+                  className={`lb-row lb-row-${p.rank <= 3 ? p.rank : ""}`}
+                  onClick={() => goToProfile(p)}
+                  style={{ cursor: p.username ? "pointer" : "default" }}
+                >
                   <span className="lb-rank">{p.rank}</span>
                   <Avatar size={40} />
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -150,7 +146,6 @@ export default function RankingsPage() {
               ))}
             </div>
           </section>
-
         </>
       )}
     </div>

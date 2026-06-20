@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/context/AuthContext";
 import {
   Home, Gem, Trophy, Shield,
   ChevronDown, Menu, X, User, LogOut
