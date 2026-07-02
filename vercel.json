@@ -3,7 +3,7 @@
   "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [
-    { "source": "/bot-api/:path*", "destination": "http://92.119.165.177:5064/api/:path*" },
+    { "source": "/bot-api/:path*", "destination": "http://185.211.103.141:7999/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
